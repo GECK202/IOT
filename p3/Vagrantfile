@@ -1,0 +1,31 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+login = "vkaron"
+
+server_name = "#{login}S"
+server_ip   = "192.168.42.110"
+
+file_path = "file:///goinfre/vkaron/"
+url_path = "https://cloud-images.ubuntu.com/focal/current/"
+image_name = "focal-server-cloudimg-amd64-vagrant.box"
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/focal64"
+  config.vm.box_url = "#{file_path}#{image_name}"
+
+  config.vm.synced_folder ".", "/vagrant/", disabled: false, create: true
+
+  config.vm.hostname = server_name
+  config.vm.network "private_network", ip: server_ip
+  config.vm.network "forwarded_port", guest: 8080, host: 8080, protocol: "tcp"
+  config.vm.network "forwarded_port", guest: 8888, host: 8888, protocol: "tcp"
+
+
+  config.vm.provider "virtualbox" do |v|
+    v.customize ["modifyvm", :id, "--name", server_name]
+    v.customize ["modifyvm", :id, "--memory", 4096]
+    v.customize ["modifyvm", :id, "--cpus", 4]
+  end
+  config.vm.provision "shell", privileged: false, path: "scripts/server_script.sh"
+end
