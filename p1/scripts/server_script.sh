@@ -8,3 +8,6 @@ export INSTALL_K3S_EXEC="--node-ip=$NODE_IP"
 export K3S_KUBECONFIG_MODE="644"
 
 curl -sfL https://get.k3s.io | sh -
+
+echo "alias k='kubectl'" >> /home/vagrant/.bashrc
+echo "alias c='clear'" >> /home/vagrant/.bashrc

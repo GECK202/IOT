@@ -6,13 +6,22 @@ login = "vkaron"
 server_name = "#{login}S"
 server_ip   = "192.168.42.110"
 
+file_path = "file:///goinfre/vkaron/"
+url_path = "https://cloud.centos.org/centos/9-stream/x86_64/images/"
+image_name = "CentOS-Stream-Vagrant-9-20211115.2.x86_64.vagrant-virtualbox.box"
+
 Vagrant.configure("2") do |config|
 
   config.vm.box     = "centos8"
-  # config.vm.box_url = "https://cloud.centos.org/centos/9-stream/x86_64/images/CentOS-Stream-Vagrant-9-20211115.2.x86_64.vagrant-virtualbox.box"
-  config.vm.box_url = "file:///goinfre/vkaron/CentOS-Stream-Vagrant-9-20211115.2.x86_64.vagrant-virtualbox.box"
-  config.vm.box_check_update = true
+  unless File.exist? "#{file_path}#{image_name}"
+  	config.vm.box_url = "#{url_path}#{image_name}"
+  else
+  	config.vm.box_url = "#{file_path}#{image_name}"
+  end
+
+  config.vm.box_check_update = false
   config.vm.synced_folder ".", "/vagrant", disabled: true
+
   config.vm.network "forwarded_port", guest: 80, host: 8080, protocol: "tcp"
 
   config.vm.provider :virtualbox do |v|
@@ -29,13 +38,9 @@ Vagrant.configure("2") do |config|
     control.vm.provider "virtualbox" do |v|
       v.customize ["modifyvm", :id, "--name", server_name]
     end
-    config.vm.provision "file", source: "confs/deployment.yaml", destination: "~/deployment.yaml"
-    config.vm.provision "file", source: "confs/app1", destination: "~/app1"
-    config.vm.provision "file", source: "confs/app2", destination: "~/app2"
-    config.vm.provision "file", source: "confs/app3", destination: "~/app3"
+    config.vm.provision "file", source: "confs/", destination: "~/"
     control.vm.provision "shell", path: "scripts/server_script.sh", env: {"NODE_IP": server_ip}
     control.vm.provision "shell", privileged: false, path: "scripts/deployment.sh"
-
   end
 
 end

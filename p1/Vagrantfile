@@ -8,12 +8,19 @@ server_ip   = "192.168.42.110"
 worker_name = "#{login}SW"
 worker_ip   = "192.168.42.111"
 
+file_path = "file:///goinfre/vkaron/"
+url_path = "https://cloud.centos.org/centos/9-stream/x86_64/images/"
+image_name = "CentOS-Stream-Vagrant-9-20211115.2.x86_64.vagrant-virtualbox.box"
+
 Vagrant.configure("2") do |config|
 
   config.vm.box     = "centos8"
-  # config.vm.box_url = "https://cloud.centos.org/centos/9-stream/x86_64/images/CentOS-Stream-Vagrant-9-20211115.2.x86_64.vagrant-virtualbox.box"
-  config.vm.box_url = "file:///goinfre/vkaron/CentOS-Stream-Vagrant-9-20211115.2.x86_64.vagrant-virtualbox.box"
-  config.vm.box_check_update = true
+  unless File.exist? "#{file_path}#{image_name}"
+    config.vm.box_url = "#{url_path}#{image_name}"
+  else
+    config.vm.box_url = "#{file_path}#{image_name}"
+  end
+  config.vm.box_check_update = false
   config.vm.synced_folder ".", "/vagrant", disabled: true
 
   config.vm.provider :virtualbox do |v|
